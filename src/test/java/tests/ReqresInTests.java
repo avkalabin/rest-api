@@ -1,111 +1,131 @@
 package tests;
 
+import models.User;
 import org.junit.jupiter.api.Test;
 
+import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.given;
-import static io.restassured.http.ContentType.JSON;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.*;
+import static specs.Spec.requestSpec;
+import static specs.Spec.responseSpec;
 
 
 public class ReqresInTests {
 
+    User user = new User();
+
     @Test
     void successfulLoginTest() {
-        String body = "{ \"email\": \"eve.holt@reqres.in\", \"password\": \"cityslicka\" }";
 
-        given()
-                .log().uri()
-                .body(body)
-                .contentType(JSON)
-                .when()
-                .post("https://reqres.in/api/login")
-                .then()
-                .log().status()
-                .log().body()
-                .statusCode(200)
-                .body("token", is("QpwL5tke4Pnpja7X4"));
+        user.setEmail("eve.holt@reqres.in");
+        user.setPassword("cityslicka");
+
+        User responseUser = step("Make request to successfully login", () ->
+                given(requestSpec)
+                        .body(user)
+                        .when()
+                        .post("/login")
+                        .then()
+                        .statusCode(200)
+                        .spec(responseSpec)
+                        .extract().as(User.class));
+
+        step("Verify response", () ->
+                assertThat(responseUser.getToken()).isEqualTo("QpwL5tke4Pnpja7X4"));
     }
 
     @Test
     void getListUsers() {
 
-        given()
-                .log().uri()
-                .contentType(JSON)
-                .when()
-                .get("https://reqres.in/api/users?page=2")
-                .then()
-                .log().status()
-                .log().body()
-                .statusCode(200)
-                .body("data.findAll { it.first_name == 'Michael' }",
-                        hasItems(hasEntry("first_name", "Michael"), hasEntry("last_name", "Lawson")));
+        step("Make request to get list of user and verify Michael Lawson with Groovy", () ->
+                given(requestSpec)
+                        .when()
+                        .get("/users?page=2")
+                        .then()
+                        .statusCode(200)
+                        .spec(responseSpec)
+                        .body("data.findAll { it.first_name == 'Michael' }",
+                                hasItems(hasEntry("first_name", "Michael"), hasEntry("last_name", "Lawson"))));
     }
 
     @Test
     void createUser() {
 
-        given()
-                .log().uri()
-                .contentType(JSON)
-                .body("{ \"name\": \"morpheus\", \"job\": \"leader\" }")
-                .when()
-                .post("https://reqres.in/api/users")
-                .then()
-                .log().status()
-                .log().body()
-                .statusCode(201)
-                .body("name", is("morpheus"))
-                .body("job", is("leader"));
+        user.setFirstName("morpheus");
+        user.setJob("leader");
+
+        User responseUser = step("Make request to create user", () ->
+                given(requestSpec)
+                        .body(user)
+                        .when()
+                        .post("/users")
+                        .then()
+                        .statusCode(201)
+                        .spec(responseSpec)
+                        .extract().as(User.class));
+
+        step("Verify response", () -> {
+            assertThat(responseUser.getFirstName()).isEqualTo("morpheus");
+            assertThat(responseUser.getJob()).isEqualTo("leader");
+        });
     }
 
     @Test
     void updateUser() {
 
-        given()
-                .log().uri()
-                .contentType(JSON)
-                .body("{ \"name\": \"morpheus\", \"job\": \"zion resident\" }")
-                .when()
-                .put("https://reqres.in/api/users/2")
-                .then()
-                .log().status()
-                .log().body()
-                .statusCode(200)
-                .body("name", is("morpheus"))
-                .body("job", is("zion resident"));
+        user.setFirstName("morpheus");
+        user.setJob("zion resident");
+
+        User responseUser = step("Make request to update user", () ->
+                given(requestSpec)
+                        .body(user)
+                        .when()
+                        .put("/users/2")
+                        .then()
+                        .statusCode(200)
+                        .spec(responseSpec)
+                        .extract().as(User.class));
+
+        step("Verify response", () -> {
+            assertThat(responseUser.getFirstName()).isEqualTo("morpheus");
+            assertThat(responseUser.getJob()).isEqualTo("zion resident");
+        });
     }
 
     @Test
     void verifyDeleteCode() {
 
-        given()
-                .log().uri()
-                .contentType(JSON)
-                .when()
-                .delete("https://reqres.in/api/users/2")
-                .then()
-                .log().status()
-                .log().body()
-                .statusCode(204);
+        step("Make request to delete user", () ->
+                given(requestSpec)
+                        .when()
+                        .delete("https://reqres.in/api/users/2")
+                        .then()
+                        .spec(responseSpec)
+                        .statusCode(204));
     }
 
 
     @Test
     void successfulRegisterTest() {
-        String body = "{ \"email\": \"eve.holt@reqres.in\", \"password\": \"pistol\" }";
 
-        given()
-                .log().uri()
-                .body(body)
-                .contentType(JSON)
-                .when()
-                .post("https://reqres.in/api/register")
-                .then()
-                .log().status()
-                .log().body()
-                .statusCode(200)
-                .body("token", is("QpwL5tke4Pnpja7X4"))
-                .body("id", is(4));
+        user.setEmail("eve.holt@reqres.in");
+        user.setPassword("pistol");
+
+        User responseUser = step("Make request to successfully register", () ->
+                given(requestSpec)
+                        .body(user)
+                        .when()
+                        .post("/register")
+                        .then()
+                        .spec(responseSpec)
+                        .statusCode(200)
+                        .extract().as(User.class));
+
+
+        step("Verify response", () -> {
+            assertThat(responseUser.getToken()).isEqualTo("QpwL5tke4Pnpja7X4");
+            assertThat(responseUser.getId()).isEqualTo(4);
+        });
     }
 }
