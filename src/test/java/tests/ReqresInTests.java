@@ -1,6 +1,7 @@
 package tests;
 
 import models.User;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static io.qameta.allure.Allure.step;
@@ -16,6 +17,7 @@ public class ReqresInTests {
     User user = new User();
 
     @Test
+    @DisplayName("Проверка успешного логина")
     void successfulLoginTest() {
 
         user.setEmail("eve.holt@reqres.in");
@@ -36,6 +38,7 @@ public class ReqresInTests {
     }
 
     @Test
+    @DisplayName("Проверка наличия Michael Lawson в списке пользователей")
     void getListUsers() {
 
         step("Make request to get list of user and verify Michael Lawson with Groovy", () ->
@@ -50,6 +53,7 @@ public class ReqresInTests {
     }
 
     @Test
+    @DisplayName("Проверка создания пользователя")
     void createUser() {
 
         user.setFirstName("morpheus");
@@ -72,6 +76,7 @@ public class ReqresInTests {
     }
 
     @Test
+    @DisplayName("Проверка обновления данных пользователя")
     void updateUser() {
 
         user.setFirstName("morpheus");
@@ -94,6 +99,7 @@ public class ReqresInTests {
     }
 
     @Test
+    @DisplayName("Проверка статус кода при удалении пользователя")
     void verifyDeleteCode() {
 
         step("Make request to delete user", () ->
@@ -107,6 +113,7 @@ public class ReqresInTests {
 
 
     @Test
+    @DisplayName("Проверка успешной регистрации")
     void successfulRegisterTest() {
 
         user.setEmail("eve.holt@reqres.in");
