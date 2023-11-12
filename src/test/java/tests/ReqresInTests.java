@@ -82,7 +82,7 @@ public class ReqresInTests {
         user.setFirstName("morpheus");
         user.setJob("zion resident");
 
-        User responseUser = step("Make request to update user", () ->
+            User responseUser = step("Make request to update user", () ->
                 given(requestSpec)
                         .body(user)
                         .when()
